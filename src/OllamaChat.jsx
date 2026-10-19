@@ -1,24 +1,56 @@
+
 import { useState } from "react";
 import Ollama from "ollama";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
 export default function OllamaChat() {
-  // TODO: Add state for input, messages, loading, and error.
+  const [input, setInput] = useState("");
+  const [messages, setMessages] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const handleAsk = async () => {
-    // TODO: Prevent empty submissions and duplicate submissions while loading.
-    // TODO: Create a user message object.
-    // TODO: Add the user message to the message thread.
-    // TODO: Clear the input, reset errors, and turn loading on.
-    // TODO: Call Ollama.chat with model "llama3.2" and the updated message history.
-    // TODO: Add the assistant response to the message thread.
-    // TODO: Show a helpful error if the request fails.
-    // TODO: Turn loading off after success or failure.
+    if (!input.trim() || loading) return;
+
+    const userMessage = {
+      role: "user",
+      content: input.trim(),
+    };
+
+    const nextMessages = [...messages, userMessage];
+
+    setMessages(nextMessages);
+    setInput("");
+    setError("");
+    setLoading(true);
+
+    try {
+      const response = await Ollama.chat({
+        model: "llama3.2",
+        messages: nextMessages,
+      });
+
+      setMessages([
+        ...nextMessages,
+        response.message,
+      ]);
+    } catch (err) {
+      console.error("Ollama chat error:", err);
+      setError(
+        "Failed to get response from Ollama. Please try again."
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
   const clearChat = () => {
-    // TODO: Clear messages, input, and error.
+    if (loading) return;
+
+    setMessages([]);
+    setInput("");
+    setError("");
   };
 
   return (
@@ -40,24 +72,77 @@ export default function OllamaChat() {
           <label htmlFor="chat-prompt" className="sr-only">
             Ask the HR assistant
           </label>
-          {/* TODO: Set up textarea */}
+
           <textarea
             id="chat-prompt"
             rows="5"
             className="chat-textarea"
             placeholder="Ask about benefits, PTO, or workplace policies..."
+            value={input}
+            onChange={(event) => setInput(event.target.value)}
+            disabled={loading}
           />
         </div>
 
-        {/* TODO: Configure buttons */}
         <div className="chat-actions">
-          <button className="chat-button">Send</button>
-          <button className="chat-button chat-button-secondary">Clear thread</button>
+          <button
+            className="chat-button"
+            onClick={handleAsk}
+            disabled={loading || !input.trim()}
+          >
+            Send
+          </button>
+
+          <button
+            className="chat-button chat-button-secondary"
+            onClick={clearChat}
+            disabled={
+              loading ||
+              (messages.length === 0 && !input && !error)
+            }
+          >
+            Clear thread
+          </button>
         </div>
 
-        <div className="message-list" aria-label="Conversation thread">
-          {/* TODO: Render user and assistant messages here. */}
-          {/* TODO: Render a temporary Assistant / Thinking... message while loading. */}
+        {error && (
+          <p className="chat-error" role="alert">
+            {error}
+          </p>
+        )}
+
+        <div
+          className="message-list"
+          aria-label="Conversation thread"
+          aria-live="polite"
+        >
+          {messages.map((message, index) => (
+            <div
+              key={`${index}-${message.role}`}
+              role="article"
+              className={`message message-${message.role}`}
+            >
+              <strong>
+                {message.role === "user" ? "You" : "HR Assistant"}
+              </strong>
+
+              <div className="message-content">
+                {message.role === "assistant" ? (
+                  <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                    {message.content}
+                  </ReactMarkdown>
+                ) : (
+                  <p>{message.content}</p>
+                )}
+              </div>
+            </div>
+          ))}
+
+          {loading && (
+            <p className="chat-loading" role="status">
+              HR Assistant is thinking...
+            </p>
+          )}
         </div>
       </div>
     </section>
