@@ -1,0 +1,20 @@
+{
+  "products": [
+    {
+      "id": "1",
+      "name": "Running Shoes",
+      "price": 59.99,
+      "description": "Comfortable running shoes",
+      "category": "Shoes",
+      "stock": 20
+    },
+    {
+      "id": "2",
+      "name": "Blue T-Shirt",
+      "price": 19.99,
+      "description": "A soft blue cotton shirt",
+      "category": "Clothing",
+      "stock": 35
+    }
+  ]
+}

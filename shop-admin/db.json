@@ -1,0 +1,29 @@
+{
+  "products": [
+    {
+      "id": "1",
+      "name": "Running Shoes",
+      "price": 59.99,
+      "description": "Comfortable running shoes",
+      "category": "Shoes",
+      "stock": 20
+    },
+    {
+      "id": "2",
+      "name": "Blue T-Shirt",
+      "price": 19.99,
+      "description": "A soft blue cotton shirt",
+      "category": "Clothing",
+      "stock": 35
+    },
+    {
+      "name": "hmm",
+      "price": 0.97,
+      "description": "hi",
+      "category": "shoe",
+      "stock": 1,
+      "id": "WWkFo8psMhU"
+    }
+  ],
+  "$schema": "./node_modules/json-server/schema.json"
+}
